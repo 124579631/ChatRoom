@@ -7,7 +7,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import java.net.URL;
 import java.util.Base64; // 【新增】
 
 /**
@@ -110,14 +114,55 @@ public class LoginController {
         if (response.isSuccess()) {
             statusText.setText("登录成功！正在加载主界面...");
 
-            // TODO: (下一步) 在这里关闭登录窗口，并打开主聊天窗口
-            System.out.println("登录成功，准备切换窗口。");
+            // 【核心】切换到主聊天窗口
+            try {
+                // 1. 检查 FXML 资源路径是否有效
+                URL chatFxmlLocation = getClass().getResource("/com/my/chatroom/Chat.fxml");
+                if (chatFxmlLocation == null) {
+                    // 如果路径为 null，说明文件没找到，直接抛出更清晰的错误
+                    throw new Exception("Chat.fxml文件未找到。请确认它是否位于 src/main/resources/com/my/chatroom/ 目录下。");
+                }
 
-            // (临时：测试断开连接)
-            // nettyClient.disconnect();
+                // 2. 使用有效的 URL 加载 FXML
+                FXMLLoader loader = new FXMLLoader(chatFxmlLocation);
+                Parent chatRoot = loader.load();
 
+                // 3. 获取 ChatController 实例
+                ChatController chatController = loader.getController();
+
+                // 4. 【关键】将 Netty 客户端实例和用户ID注入到 ChatController
+                chatController.setClient(this.nettyClient, userIdField.getText());
+
+                // 5. 创建新场景
+                Scene chatScene = new Scene(chatRoot, 800, 600);
+
+                // 6. 加载 CSS (确保 Chat.fxml 也能获得样式)
+                URL cssLocation = getClass().getResource("/com/my/chatroom/style.css");
+                if (cssLocation != null) {
+                    chatScene.getStylesheets().add(cssLocation.toExternalForm());
+                }
+
+                // 7. 获取当前舞台 (Stage)
+                Stage stage = (Stage) loginButton.getScene().getWindow();
+
+                // 8. 切换场景
+                stage.setTitle("安全聊天室 - " + userIdField.getText());
+                stage.setScene(chatScene);
+                stage.setResizable(true);
+
+                // (可选) 当主窗口关闭时，断开 Netty 连接
+                stage.setOnCloseRequest(e -> {
+                    nettyClient.disconnect();
+                    Platform.exit();
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                // 在 UI 上显示更详细的错误信息
+                statusText.setText("错误：无法加载主聊天界面: " + e.getMessage());
+            }
         } else {
-            statusText.setText("登录失败: "S + response.getMessage());
+            statusText.setText("登录失败: " + response.getMessage());
             // 重新启用按钮
             loginButton.setDisable(false);
             registerButton.setDisable(false);

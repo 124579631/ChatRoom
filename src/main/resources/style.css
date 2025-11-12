@@ -64,3 +64,69 @@
     -fx-background-color: #555555;
     -fx-text-fill: #33ff33;
 }
+/* --- Chat.fxml 样式 --- */
+
+/* 聊天记录区域 */
+.chat-history-area {
+    -fx-control-inner-background: #1a1a1a; /* 深黑背景 */
+    -fx-text-fill: #e0e0e0; /* 亮灰色文字 */
+    -fx-font-family: "Consolas", "Monaco", monospace;
+    -fx-font-size: 14px;
+}
+
+/* 聊天记录区域的滚动条 */
+.chat-history-area .scroll-pane .viewport {
+    -fx-background-color: #1a1a1a;
+}
+.chat-history-area .scroll-bar:vertical .track {
+    -fx-background-color: #333333;
+}
+.chat-history-area .scroll-bar:vertical .thumb {
+    -fx-background-color: #00ff00; /* 绿色滚动条 */
+}
+
+
+/* 用户列表 */
+.user-list-view {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: #00ff00;
+    -fx-border-width: 0 1px 0 0; /* 右侧绿色边框 */
+}
+
+/* 用户列表单元格 */
+.user-list-view .list-cell {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: #00ff00; /* 绿色用户名 */
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* 用户列表单元格 (选中时) */
+.user-list-view .list-cell:filled:selected {
+    -fx-background-color: #00ff00; /* 绿色背景 */
+    -fx-text-fill: #1a1a1a; /* 黑色文字 */
+}
+
+/* 底部输入栏 */
+.bottom-bar {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: #00ff00;
+    -fx-border-width: 1px 0 0 0; /* 顶部绿色边框 */
+}
+
+/* 消息输入框 */
+.message-input-field {
+    -fx-background-color: #333333;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-border-color: #00ff00;
+    -fx-border-width: 1px;
+    -fx-prompt-text-fill: #777777;
+}
+
+/* 阅后即焚 (ToggleButton) 选中时 */
+.toggle-button:selected {
+    -fx-background-color: #ff4d4d; /* 红色背景 */
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #ff4d4d;
+}

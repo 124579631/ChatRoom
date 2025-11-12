@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.my.chatroom.ChatController"
+            prefHeight="600.0" prefWidth="800.0"
+            styleClass="root">
+
+    <left>
+        <VBox style="-fx-background-color: #2a2a2a;" prefWidth="200" spacing="10">
+            <padding>
+                <Insets top="10" right="5" bottom="10" left="5"/>
+            </padding>
+            <Text text="在线用户" styleClass="header-title" fill="#00ff00" style="-fx-font-size: 20px;"/>
+
+            <ListView fx:id="userListView" styleClass="user-list-view"/>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox>
+            <HBox alignment="CENTER" style="-fx-background-color: #2a2a2a; -fx-padding: 10;">
+                <Text fx:id="chatTargetLabel" text="[未选择聊天]" styleClass="header-title" fill="#ffffff" style="-fx-font-size: 24px;"/>
+            </HBox>
+
+            <TextArea fx:id="chatHistoryArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS"
+                      styleClass="chat-history-area"/>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="bottom-bar">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <TextField fx:id="messageInputField" HBox.hgrow="ALWAYS"
+                       promptText="在此输入加密消息..."
+                       onAction="#handleSendMessageAction"
+                       styleClass="message-input-field"/>
+
+            <Button fx:id="sendButton" text="发 送"
+                    onAction="#handleSendMessageAction"
+                    styleClass="button"/>
+
+            <ToggleButton fx:id="burnModeToggle" text="阅后即焚"
+                          styleClass="button-register" prefWidth="100"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
