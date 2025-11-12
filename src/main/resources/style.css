@@ -1,0 +1,66 @@
+/* style.css - 暗色安全黑客风主题 */
+
+/* 根 (VBox) */
+.root {
+    -fx-background-color: #1a1a1a; /* 深黑背景 */
+    -fx-font-family: "Consolas", "Monaco", monospace;
+}
+
+/* 头部标题 */
+.header-title {
+    -fx-fill: #00ff00; /* 亮绿色 (黑客风) */
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+/* 标签 (Label) */
+.label-normal {
+    -fx-text-fill: #cccccc; /* 浅灰色文字 */
+    -fx-font-size: 14px;
+}
+
+/* 状态文本 (错误/成功消息) */
+.status-text {
+    -fx-fill: #ff4d4d; /* 红色 (错误) */
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* 文本输入框 */
+.text-field {
+    -fx-background-color: #333333; /* 深灰输入框背景 */
+    -fx-text-fill: #ffffff; /* 白色输入文字 */
+    -fx-font-size: 14px;
+    -fx-border-color: #00ff00; /* 绿色边框 */
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+    -fx-prompt-text-fill: #777777; /* 提示文字颜色 */
+}
+
+/* 按钮 (Button) */
+.button {
+    -fx-background-color: #00ff00; /* 亮绿色背景 */
+    -fx-text-fill: #1a1a1a; /* 深黑文字 */
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 3px;
+}
+
+.button:hover {
+    -fx-background-color: #33ff33; /* 悬停时更亮 */
+    -fx-cursor: hand;
+}
+
+/* 注册按钮 (不同样式) */
+.button-register {
+    -fx-background-color: #444444; /* 深灰色背景 */
+    -fx-text-fill: #00ff00; /* 亮绿色文字 */
+    -fx-border-color: #00ff00;
+    -fx-border-width: 1px;
+}
+
+.button-register:hover {
+    -fx-background-color: #555555;
+    -fx-text-fill: #33ff33;
+}

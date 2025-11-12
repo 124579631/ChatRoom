@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?> <?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.my.chatroom.LoginController"
+      alignment="TOP_CENTER" spacing="15"
+      styleClass="root"
+      prefHeight="400" prefWidth="350">
+    <padding>
+        <Insets topRightBottomLeft="30.0" />
+    </padding>
+
+    <Text text="安全聊天室" styleClass="header-title" />
+    <Text fx:id="statusText" styleClass="status-text" />
+
+    <VBox spacing="10" alignment="CENTER_LEFT" prefHeight="150">
+        <Label text="服务器 (例如: 127.0.0.1:8888)" styleClass="label-normal" />
+        <TextField fx:id="serverField" promptText="host:port" text="127.0.0.1:8888" />
+
+        <Label text="用户名" styleClass="label-normal" />
+        <TextField fx:id="userIdField" promptText="输入你的ID" />
+
+        <Label text="密码" styleClass="label-normal" />
+        <PasswordField fx:id="passwordField" promptText="输入密码" />
+    </VBox>
+
+    <VBox spacing="10" alignment="CENTER">
+        <Button fx:id="loginButton" text="登 录" onAction="#handleLoginButtonAction" prefWidth="Infinity"/>
+        <Button fx:id="registerButton" text="注 册" onAction="#handleRegisterButtonAction" prefWidth="Infinity" styleClass="button-register"/>
+    </VBox>
+
+</VBox>
