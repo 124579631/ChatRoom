@@ -38,8 +38,9 @@ public class MessageTypeAdapter extends TypeAdapter<Message> {
                     .registerTypeAdapter(KeyExchangeResponse.class, adapter)
                     .registerTypeAdapter(AESKeyExchangeMessage.class, adapter)
                     .registerTypeAdapter(UserListMessage.class, adapter)
-                    // 【新增注册】阅后即焚消息
+                    // 阅后即焚消息
                     .registerTypeAdapter(BurnAfterReadMessage.class, adapter)
+                    .registerTypeAdapter(ImageMessage.class, adapter)
                     .create();
         }
         return registrationGson;
@@ -96,6 +97,9 @@ public class MessageTypeAdapter extends TypeAdapter<Message> {
         }
         else if (type == Message.MessageType.USER_LIST_UPDATE) {
             targetClass = UserListMessage.class;
+        }
+        else if (type == Message.MessageType.IMAGE_MESSAGE) {
+            targetClass = ImageMessage.class;
         }
         else {
             // 如果不是已知的子类，就反序列化为 Message 基类

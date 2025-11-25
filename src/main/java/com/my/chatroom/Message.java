@@ -12,9 +12,10 @@ public class Message implements Serializable {
         TEXT_MESSAGE_ENCRYPTED,
         BURN_AFTER_READ,
         USER_LIST_UPDATE,
-        KEY_EXCHANGE_REQUEST,   // 密钥交换请求
-        KEY_EXCHANGE_RESPONSE,  // 密钥交换响应
+        KEY_EXCHANGE_REQUEST,
+        KEY_EXCHANGE_RESPONSE,
         AES_KEY_EXCHANGE,
+        IMAGE_MESSAGE
     }
 
     private MessageType type;

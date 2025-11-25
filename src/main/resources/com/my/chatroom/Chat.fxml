@@ -36,7 +36,6 @@
                         onAction="#handleConnectAction"
                         style="-fx-background-color: #00ff00; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;"
                         visible="false"/>
-
             </HBox>
 
             <ListView fx:id="chatListView" VBox.vgrow="ALWAYS" styleClass="chat-list-view"/>
@@ -44,25 +43,38 @@
     </center>
 
     <bottom>
-        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="bottom-bar">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
+        <VBox styleClass="bottom-bar">
+            <ScrollPane fx:id="pendingFileScroll" vbarPolicy="NEVER" hbarPolicy="AS_NEEDED"
+                        style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;"
+                        maxHeight="0" visible="false">
+                <HBox fx:id="pendingFileBox" spacing="10" style="-fx-padding: 5 10 5 10;">
+                </HBox>
+            </ScrollPane>
 
-            <TextField fx:id="messageInputField" HBox.hgrow="ALWAYS"
-                       promptText="在此输入加密消息..."
-                       onAction="#handleSendMessageAction"
-                       styleClass="message-input-field"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
 
-            <Button fx:id="sendButton" text="发 送"
-                    onAction="#handleSendMessageAction"
-                    styleClass="button" prefWidth="80"/>
+                <Button text="图片" onAction="#handleSelectFileAction"
+                        style="-fx-background-color: #444444; -fx-text-fill: white;"
+                        prefWidth="50"/>
 
-            <Button fx:id="burnButton" text="🔥 阅后即焚"
-                    onAction="#handleBurnMessageAction"
-                    style="-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-font-weight: bold;"
-                    prefWidth="100"/>
-        </HBox>
+                <TextField fx:id="messageInputField" HBox.hgrow="ALWAYS"
+                           promptText="在此输入加密消息..."
+                           onAction="#handleSendMessageAction"
+                           styleClass="message-input-field"/>
+
+                <Button fx:id="sendButton" text="发 送"
+                        onAction="#handleSendMessageAction"
+                        styleClass="button" prefWidth="80"/>
+
+                <Button fx:id="burnButton" text="🔥 阅后即焚"
+                        onAction="#handleBurnMessageAction"
+                        style="-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-font-weight: bold;"
+                        prefWidth="100"/>
+            </HBox>
+        </VBox>
     </bottom>
 
 </BorderPane>

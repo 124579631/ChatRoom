@@ -28,7 +28,7 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<Message> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
-        // 确保消息类型正确
+        // 确保消息类型正确 (防守式编程，重新解析一次以确保多态正确)
         String json = GSON.toJson(msg);
         Message actualMsg = GSON.fromJson(json, Message.class);
 
@@ -44,11 +44,11 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<Message> {
         else if (actualMsg.getType() == Message.MessageType.AES_KEY_EXCHANGE) {
             handleAESKeyExchange(ctx, actualMsg);
         }
-        // 4. 普通消息 / 阅后即焚 (可能是私聊，也可能是群聊)
+        // 4. 普通消息 / 阅后即焚 / 图片 (可能是私聊，也可能是群聊)
         else {
             String userId = getUserIdByChannel(ctx.channel());
             if (userId != null) {
-                // 【修改】统一调用 handleForwarding 处理转发逻辑
+                // 【核心修改】这里处理所有类型的转发消息
                 handleForwarding(ctx, actualMsg, userId);
             } else {
                 ctx.writeAndFlush(new LoginResponse("SERVER", false, "请先登录！"));
@@ -58,13 +58,19 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<Message> {
 
     /**
      * 【核心修改】统一转发逻辑，支持私聊和群聊
+     * 已修复：添加了 ImageMessage 的支持
      */
     private void handleForwarding(ChannelHandlerContext ctx, Message msg, String senderId) {
         String targetId = null;
+
+        // 1. 提取目标 ID
         if (msg instanceof TextMessage) {
             targetId = ((TextMessage) msg).getTargetUserId();
         } else if (msg instanceof BurnAfterReadMessage) {
             targetId = ((BurnAfterReadMessage) msg).getTargetUserId();
+        } else if (msg instanceof ImageMessage) {
+            // 【新增】支持图片消息转发
+            targetId = ((ImageMessage) msg).getTargetUserId();
         }
 
         if (targetId != null) {
@@ -78,20 +84,18 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<Message> {
             Channel targetChannel = LOGGED_IN_USERS.get(targetId);
             if (targetChannel != null) {
                 targetChannel.writeAndFlush(msg);
-                System.out.println("[转发] " + senderId + " -> " + targetId);
+                System.out.println("[转发] " + senderId + " -> " + targetId + " (类型: " + msg.getType() + ")");
             } else {
-                ctx.writeAndFlush(new LoginResponse("SERVER", false, "发送失败：目标用户不在线。"));
+                // 可选：通知发送者目标不在线，但对于图片消息通常静默处理或存离线消息（当前暂不处理）
+                System.out.println("[转发失败] 目标 " + targetId + " 不在线");
             }
         }
     }
 
-    /**
-     * 【新增】广播群聊消息给所有在线用户
-     */
     private void broadcastGroupMessage(Message msg, String senderId) {
         System.out.println("[群聊] 来自 " + senderId + " 的广播消息");
         for (Channel ch : LOGGED_IN_USERS.values()) {
-            // 发给所有人（包括发送者自己，以便确认发送成功）
+            // 发给所有人
             ch.writeAndFlush(msg);
         }
     }
@@ -101,7 +105,7 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<Message> {
         LoginRequest request = (LoginRequest) msg;
 
         String userId = request.getSenderId();
-        String password = request.getPassword(); // 客户端发来的原始密码
+        String password = request.getPassword();
         String publicKey = request.getPublicKey();
         Channel incoming = ctx.channel();
         LoginResponse response;
@@ -110,8 +114,6 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<Message> {
             response = new LoginResponse(userId, false, "用户已在线，请勿重复登录。");
         } else {
             User user = DatabaseManager.getUser(userId);
-
-            // 【修复】将输入的密码进行哈希，然后与数据库中的哈希比对
             String inputHash = DatabaseManager.hashPassword(password);
 
             if (user != null && user.getPasswordHash().equals(inputHash)) {
@@ -121,11 +123,10 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<Message> {
                 DatabaseManager.updatePublicKey(userId, publicKey);
 
                 System.out.println("[认证成功] " + userId);
-                // 延迟广播列表，防止客户端 UI 未加载完成
                 ctx.executor().schedule(this::broadcastUserList, 300, TimeUnit.MILLISECONDS);
 
             } else if (user == null) {
-                // 自动注册 (registerUser 内部应该已经做了哈希存储)
+                // 自动注册
                 if (DatabaseManager.registerUser(userId, password)) {
                     LOGGED_IN_USERS.put(userId, incoming);
                     response = new LoginResponse(userId, true, "注册并登录成功！");
