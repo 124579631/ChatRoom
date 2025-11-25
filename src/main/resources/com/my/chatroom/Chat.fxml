@@ -18,18 +18,28 @@
             </padding>
             <Text text="在线用户" styleClass="header-title" fill="#00ff00" style="-fx-font-size: 20px;"/>
 
-            <ListView fx:id="userListView" styleClass="user-list-view"/>
+            <ListView fx:id="userListView" styleClass="user-list-view" VBox.vgrow="ALWAYS"/>
+
+            <Button text="📢 进入公共群聊"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: #ff9900; -fx-text-fill: black; -fx-font-weight: bold;"
+                    onAction="#handleJoinPublicChat"/>
         </VBox>
     </left>
 
     <center>
         <VBox>
-            <HBox alignment="CENTER" style="-fx-background-color: #2a2a2a; -fx-padding: 10;">
-                <Text fx:id="chatTargetLabel" text="[未选择聊天]" styleClass="header-title" fill="#ffffff" style="-fx-font-size: 24px;"/>
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #2a2a2a; -fx-padding: 10;">
+                <Text fx:id="chatTargetLabel" text="[未选择聊天]" styleClass="header-title" fill="#ffffff" style="-fx-font-size: 20px;"/>
+
+                <Button fx:id="connectButton" text="🔐 建立加密通道"
+                        onAction="#handleConnectAction"
+                        style="-fx-background-color: #00ff00; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;"
+                        visible="false"/>
+
             </HBox>
 
-            <TextArea fx:id="chatHistoryArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS"
-                      styleClass="chat-history-area"/>
+            <ListView fx:id="chatListView" VBox.vgrow="ALWAYS" styleClass="chat-list-view"/>
         </VBox>
     </center>
 
@@ -46,10 +56,12 @@
 
             <Button fx:id="sendButton" text="发 送"
                     onAction="#handleSendMessageAction"
-                    styleClass="button"/>
+                    styleClass="button" prefWidth="80"/>
 
-            <ToggleButton fx:id="burnModeToggle" text="阅后即焚"
-                          styleClass="button-register" prefWidth="100"/>
+            <Button fx:id="burnButton" text="🔥 阅后即焚"
+                    onAction="#handleBurnMessageAction"
+                    style="-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-font-weight: bold;"
+                    prefWidth="100"/>
         </HBox>
     </bottom>
 

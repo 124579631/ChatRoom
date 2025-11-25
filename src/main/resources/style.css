@@ -130,3 +130,108 @@
     -fx-text-fill: #ffffff;
     -fx-border-color: #ff4d4d;
 }
+
+/* --- 列表与滚动条美化 --- */
+
+/* 去掉 ListView 默认的灰色边框和背景 */
+.user-list-view {
+    -fx-background-color: #2a2a2a;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+}
+
+/* 滚动条轨道 (背景) */
+.scroll-bar:vertical .track,
+.scroll-bar:horizontal .track {
+    -fx-background-color: #1a1a1a; /* 极深色轨道 */
+    -fx-border-color: transparent;
+    -fx-background-radius: 0;
+}
+
+/* 滚动条滑块 (Thumb) */
+.scroll-bar:vertical .thumb,
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: #444444; /* 深灰色滑块 */
+    -fx-background-radius: 5em;
+}
+
+/* 鼠标悬停在滚动条上时 */
+.scroll-bar:vertical .thumb:hover,
+.scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #00ff00; /* 悬停变绿 */
+}
+
+/* 隐藏滚动条的上下箭头按钮（更简洁） */
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+/* --- 聊天气泡样式 (V2 修复版) --- */
+
+/* 1. 列表容器：完全透明，无边框 */
+.chat-list-view {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 10px;
+}
+
+/* 2. 列表单元格：核心！强制透明，去掉默认的“格子”颜色 */
+.chat-list-view .list-cell {
+    -fx-background-color: transparent !important; /* !important 强制覆盖默认样式 */
+    -fx-text-fill: null;
+    -fx-padding: 5px 0; /* 增加消息之间的垂直间距 */
+    -fx-border-width: 0;
+}
+
+/* 3. 选中状态：去掉选中时的蓝色/灰色背景 */
+.chat-list-view .list-cell:filled:selected,
+.chat-list-view .list-cell:filled:selected:focused,
+.chat-list-view .list-cell:empty {
+    -fx-background-color: transparent !important;
+    -fx-border-width: 0;
+}
+
+/* 4. 气泡通用样式 */
+.bubble-text {
+    -fx-font-family: "Microsoft YaHei", "SimHei", sans-serif;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 12px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 3, 0, 1, 1);
+    -fx-max-width: 500px; /* 限制气泡最大宽度 */
+}
+
+/* 对方的气泡 (深灰背景，白字) */
+.bubble-other {
+    -fx-background-color: #444444;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 0 10px 10px 10px; /* 左上角直角，像气泡 */
+}
+
+/* 我的气泡 (亮绿背景，黑字) */
+.bubble-me {
+    -fx-background-color: #00ff00;
+    -fx-text-fill: #000000;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10px 0 10px 10px; /* 右上角直角 */
+}
+
+/* 发送者名字 (气泡上方的小字) */
+.sender-name {
+    -fx-text-fill: #888888;
+    -fx-font-size: 10px;
+    -fx-padding: 0 0 2px 0;
+}
+
+/* 系统日志/群聊头部 */
+.bubble-system {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-text-fill: #aaaaaa;
+    -fx-font-size: 12px;
+    -fx-padding: 4px 10px;
+    -fx-background-radius: 15px;
+}

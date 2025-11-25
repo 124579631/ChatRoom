@@ -44,6 +44,12 @@ public class Client {
     public String getCurrentUserId() { return currentUserId; }
     public void setCurrentUserId(String currentUserId) { this.currentUserId = currentUserId; }
     public PrivateKey getPrivateKey() { return currentKeyPair.getPrivate(); }
+
+    // 获取公钥的方法
+    public java.security.PublicKey getPublicKey() {
+        return currentKeyPair.getPublic();
+    }
+
     public SecretKey getSharedAesKey(String targetId) { return sharedAesKeys.get(targetId); }
     public void setSharedAesKey(String targetId, SecretKey key) {
         sharedAesKeys.put(targetId, key);

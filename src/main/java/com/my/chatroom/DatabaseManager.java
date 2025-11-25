@@ -91,8 +91,8 @@ public class DatabaseManager {
             return false;
         }
 
-        // 实际应用中，这里应该存储密码的 SHA-256 + Salt 哈希值
-        String hash = password; // 假设此处已完成哈希处理
+        // 使用 SHA-256 哈希
+        String hash = hashPassword(password);
 
         String sql = "INSERT INTO users (user_id, password_hash) VALUES (?, ?)";
         try (Connection conn = getConnection();
@@ -232,5 +232,27 @@ public class DatabaseManager {
             System.err.println("[DB] 查询聊天记录失败: " + e.getMessage());
         }
         return history;
+    }
+
+    /**
+     * SHA-256 密码哈希工具
+     */
+    public static String hashPassword(String plainPassword) {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(plainPassword.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+            StringBuilder hexString = new StringBuilder(2 * encodedhash.length);
+            for (int i = 0; i < encodedhash.length; i++) {
+                String hex = Integer.toHexString(0xff & encodedhash[i]);
+                if(hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

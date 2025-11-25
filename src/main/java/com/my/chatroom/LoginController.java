@@ -85,7 +85,7 @@ public class LoginController {
 
                 // 3. (连接后) 在后台线程发送登录请求
                 String publicKeyBase64 = Base64.getEncoder().encodeToString(
-                        nettyClient.getPrivateKey().getEncoded()
+                        nettyClient.getPublicKey().getEncoded() // 【修复】必须传公钥！
                 );
                 LoginRequest request = new LoginRequest(userId, password, publicKeyBase64);
                 nettyClient.sendMessage(request);
@@ -135,6 +135,8 @@ public class LoginController {
 
                 // 5. 创建新场景
                 Scene chatScene = new Scene(chatRoot, 800, 600);
+                // 直接设置根节点背景色，防止 CSS 失败导致白屏
+                chatRoot.setStyle("-fx-background-color: #1a1a1a;");
 
                 // 6. 加载 CSS (确保 Chat.fxml 也能获得样式)
                 URL cssLocation = getClass().getResource("/com/my/chatroom/style.css");
