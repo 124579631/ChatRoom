@@ -18,7 +18,7 @@ public class ClientApp extends Application {
     public void start(Stage primaryStage) throws Exception {
         // 1. 加载 FXML 布局文件 (登录界面)
         // 注意：确保 FXML 文件在正确的资源路径下
-        URL fxmlLocation = getClass().getResource("/Login.fxml");
+        URL fxmlLocation = getClass().getResource("/com/my/chatroom/Login.fxml");
         if (fxmlLocation == null) {
             System.err.println("❌ 错误：无法加载 FXML 文件。请检查路径。");
             return;
@@ -27,7 +27,7 @@ public class ClientApp extends Application {
         Parent root = loader.load();
 
         // 2. 加载 CSS 样式表 (暗色黑客风)
-        URL cssLocation = getClass().getResource("/style.css");
+        URL cssLocation = getClass().getResource("/com/my/chatroom/style.css");
         if (cssLocation != null) {
             root.getStylesheets().add(cssLocation.toExternalForm());
         } else {

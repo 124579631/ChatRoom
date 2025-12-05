@@ -15,7 +15,7 @@
         <Insets topRightBottomLeft="30.0" />
     </padding>
 
-    <Text text="安全聊天室" styleClass="header-title" />
+    <Text text="安全聊天室" styleClass="login-title" />
     <Text fx:id="statusText" styleClass="status-text" />
 
     <VBox spacing="10" alignment="CENTER_LEFT" prefHeight="150">
@@ -23,8 +23,7 @@
 
         <HBox spacing="5">
             <TextField fx:id="serverField" promptText="host:port" text="127.0.0.1:8888" HBox.hgrow="ALWAYS"/>
-            <Button text="本机" onAction="#handleAutoIpAction"
-                    style="-fx-background-color: #444444; -fx-text-fill: #00ff00; -fx-font-size: 12px;">
+            <Button text="本机" onAction="#handleAutoIpAction" styleClass="button-secondary">
                 <tooltip>
                     <Tooltip text="获取本机局域网IP"/>
                 </tooltip>
@@ -39,8 +38,8 @@
     </VBox>
 
     <VBox spacing="10" alignment="CENTER">
-        <Button fx:id="loginButton" text="登 录" onAction="#handleLoginButtonAction" prefWidth="Infinity"/>
-        <Button fx:id="registerButton" text="注 册" onAction="#handleRegisterButtonAction" prefWidth="Infinity" styleClass="button-register"/>
+        <Button fx:id="loginButton" text="登 录" onAction="#handleLoginButtonAction" prefWidth="Infinity" styleClass="button-primary"/>
+        <Button fx:id="registerButton" text="注 册" onAction="#handleRegisterButtonAction" prefWidth="Infinity" styleClass="button-secondary"/>
     </VBox>
 
 </VBox>

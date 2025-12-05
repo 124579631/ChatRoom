@@ -14,16 +14,18 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
 
 import javax.crypto.SecretKey;
-import javax.net.ssl.SSLException; // 【关键修复】导入 SSLException
+import javax.crypto.spec.SecretKeySpec;
+import javax.net.ssl.SSLException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
+import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
- * 客户端主类 - 修复 SSLException 版
+ * 客户端主类 - 安全增强版 (支持密钥持久化)
  */
 public class Client {
 
@@ -31,13 +33,14 @@ public class Client {
     private final KeyPair currentKeyPair;
     private final Map<String, SecretKey> sharedAesKeys = new ConcurrentHashMap<>();
 
+    // 【新增】本地主密钥：由用户登录密码派生，用于加密/解密本地数据库中的会话密钥
+    private SecretKey localMasterKey;
+
     private Channel channel;
     private EventLoopGroup group;
     private Bootstrap bootstrap;
-
     private Consumer<LoginResponse> loginCallback;
     private Consumer<Message> messageCallback;
-
     private String host;
     private int port;
     private boolean isIntentionalDisconnect = false;
@@ -56,32 +59,93 @@ public class Client {
     public PrivateKey getPrivateKey() { return currentKeyPair.getPrivate(); }
     public java.security.PublicKey getPublicKey() { return currentKeyPair.getPublic(); }
     public SecretKey getSharedAesKey(String targetId) { return sharedAesKeys.get(targetId); }
+
+    /**
+     * 【关键修改】设置共享密钥时，自动加密并持久化到本地数据库
+     */
     public void setSharedAesKey(String targetId, SecretKey key) {
         sharedAesKeys.put(targetId, key);
         System.out.println("✅ 安全通道建立: " + targetId);
+
+        // 如果已初始化安全存储 (即用户已登录)，则保存密钥
+        if (localMasterKey != null && currentUserId != null) {
+            saveKeyToDatabase(targetId, key);
+        }
     }
 
     /**
-     * 连接逻辑 (同步等待 TCP + SSL 握手)
-     * 【关键修改】抛出 SSLException 以便上层处理
+     * 【新增】初始化安全存储 (在登录成功后调用)
+     * 1. 根据用户密码生成主密钥
+     * 2. 从数据库加载之前的聊天密钥
      */
+    public void initSecureStorage(String password) {
+        try {
+            // 1. 派生主密钥
+            this.localMasterKey = EncryptionUtils.deriveKeyFromPassword(password);
+            System.out.println("🔐 安全存储已初始化。");
+
+            // 2. 加载本地密钥
+            Map<String, String> encryptedKeys = DatabaseManager.getAllSessionKeys(currentUserId);
+            int loadedCount = 0;
+
+            for (Map.Entry<String, String> entry : encryptedKeys.entrySet()) {
+                String targetId = entry.getKey();
+                String encryptedBlob = entry.getValue();
+
+                try {
+                    // 使用主密钥解密
+                    String keyBase64 = EncryptionUtils.aesDecrypt(encryptedBlob, localMasterKey);
+                    byte[] keyBytes = Base64.getDecoder().decode(keyBase64);
+                    SecretKey originalKey = new SecretKeySpec(keyBytes, "AES");
+
+                    // 放入内存
+                    sharedAesKeys.put(targetId, originalKey);
+                    loadedCount++;
+                } catch (Exception e) {
+                    System.err.println("⚠️ 警告: 无法解密与 " + targetId + " 的密钥 (可能修改了密码?)");
+                }
+            }
+            if (loadedCount > 0) {
+                System.out.println("📂 已恢复 " + loadedCount + " 个历史会话密钥。");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 【新增】将密钥加密存入 DB
+     */
+    private void saveKeyToDatabase(String targetId, SecretKey key) {
+        try {
+            // 先将 Key 转为 Base64 字符串
+            String keyBase64 = Base64.getEncoder().encodeToString(key.getEncoded());
+            // 再用主密钥加密这个字符串
+            String encryptedBlob = EncryptionUtils.aesEncrypt(keyBase64, localMasterKey);
+            // 存入数据库
+            DatabaseManager.saveSessionKey(currentUserId, targetId, encryptedBlob);
+            System.out.println("💾 密钥已安全归档 -> DB");
+        } catch (Exception e) {
+            System.err.println("❌ 密钥归档失败: " + e.getMessage());
+        }
+    }
+
+    // --- 连接逻辑 (保持之前修复 SSLException 的版本) ---
     public void connect(String host, int port,
                         Consumer<LoginResponse> loginCallback,
                         Consumer<Message> messageCallback) throws InterruptedException, SSLException {
+        // ... (保持上一轮修复后的 connect 代码不变)
         this.host = host;
         this.port = port;
         this.loginCallback = loginCallback;
         this.messageCallback = messageCallback;
         this.group = new NioEventLoopGroup();
-
         try {
-            // 1. 配置 SSL: 强制 TLSv1.2，信任自签名证书
-            // 【注意】build() 方法会抛出 SSLException
             final SslContext sslCtx = SslContextBuilder.forClient()
                     .protocols("TLSv1.2")
                     .trustManager(InsecureTrustManagerFactory.INSTANCE)
                     .build();
-
             bootstrap = new Bootstrap();
             bootstrap.group(group)
                     .channel(NioSocketChannel.class)
@@ -90,116 +154,62 @@ public class Client {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline pipeline = ch.pipeline();
-                            // SSL 必须在最前面
                             pipeline.addLast(sslCtx.newHandler(ch.alloc(), host, port));
-
-                            // 心跳检测 (5秒)
                             pipeline.addLast(new IdleStateHandler(0, 5, 0));
-
-                            // 编解码
                             pipeline.addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 0, 4, 0, 4));
                             pipeline.addLast(new LengthFieldPrepender(4));
                             pipeline.addLast(new MessageToJsonEncoder());
                             pipeline.addLast(new JsonToMessageDecoder());
-
-                            // 业务 Handler
                             pipeline.addLast(new ChatClientHandler(Client.this, loginCallback, messageCallback));
                         }
                     });
-
-            System.out.println("🔄 正在连接 " + host + ":" + port + " ...");
-
-            // 2. 同步等待 TCP 连接建立
             ChannelFuture f = bootstrap.connect(host, port).sync();
             this.channel = f.channel();
-
-            // 3. 【核心修复】同步等待 SSL 握手完成
-            // 如果不加这一步，直接发数据会导致 SSLException 或连接关闭
             SslHandler sslHandler = this.channel.pipeline().get(SslHandler.class);
             if (sslHandler != null) {
-                System.out.println("🔐 正在进行 SSL 握手...");
                 sslHandler.handshakeFuture().sync();
-                System.out.println("✅ SSL 握手成功！");
             }
-
-            // 4. 设置断线监听 (用于自动重连)
             this.channel.closeFuture().addListener(future -> {
-                if (!isIntentionalDisconnect) {
-                    System.out.println("⚠️ 连接断开，3秒后尝试重连...");
-                    group.schedule(this::doReconnect, 3, TimeUnit.SECONDS);
-                }
+                if (!isIntentionalDisconnect) group.schedule(this::doReconnect, 3, TimeUnit.SECONDS);
             });
-
         } catch (SSLException | InterruptedException e) {
-            // 抛出特定的 checked exceptions 给上层
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ 连接失败: " + e.getMessage());
-            // 通知 UI (如果有 generic 错误)
-            if (loginCallback != null) {
-                loginCallback.accept(new LoginResponse("SYSTEM", false, "连接失败: " + e.getMessage()));
-            }
+            if (loginCallback != null) loginCallback.accept(new LoginResponse("SYSTEM", false, "连接失败: " + e.getMessage()));
         }
     }
 
-    /**
-     * 自动重连逻辑
-     */
     public synchronized void doReconnect() {
         if (isIntentionalDisconnect) return;
-
-        System.out.println("🔄 正在尝试重连...");
-        // 重新连接逻辑，注意这里是异步的，不抛出 Checked Exception
         ChannelFuture f = bootstrap.connect(host, port);
         f.addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
                 this.channel = future.channel();
-
                 SslHandler sslHandler = this.channel.pipeline().get(SslHandler.class);
                 if (sslHandler != null) {
                     sslHandler.handshakeFuture().addListener(handshakeFuture -> {
                         if (handshakeFuture.isSuccess()) {
-                            System.out.println("✅ 重连并握手成功!");
-                            if (messageCallback != null) {
-                                messageCallback.accept(new TextMessage("SYSTEM", "✅ 网络已恢复"));
-                            }
-                            // 重新绑定断开监听
+                            if (messageCallback != null) messageCallback.accept(new TextMessage("SYSTEM", "✅ 网络已恢复"));
                             this.channel.closeFuture().addListener(closeFuture -> {
-                                if (!isIntentionalDisconnect) {
-                                    future.channel().eventLoop().schedule(this::doReconnect, 3, TimeUnit.SECONDS);
-                                }
+                                if (!isIntentionalDisconnect) future.channel().eventLoop().schedule(this::doReconnect, 3, TimeUnit.SECONDS);
                             });
-                        } else {
-                            System.out.println("❌ 重连后 SSL 握手失败");
-                            this.channel.close();
-                        }
+                        } else this.channel.close();
                     });
                 }
-            } else {
-                System.out.println("❌ 重连 TCP 失败，3秒后重试...");
-                future.channel().eventLoop().schedule(this::doReconnect, 3, TimeUnit.SECONDS);
-            }
+            } else future.channel().eventLoop().schedule(this::doReconnect, 3, TimeUnit.SECONDS);
         });
     }
 
-    // 为了兼容 ChatClientHandler 的调用
-    public void doConnect() {
-        doReconnect();
-    }
+    public void doConnect() { doReconnect(); }
 
     public void sendMessage(Message message) {
-        if (channel != null && channel.isActive()) {
-            channel.writeAndFlush(message);
-        } else {
-            System.err.println("❌ 发送失败：连接未激活");
-        }
+        if (channel != null && channel.isActive()) channel.writeAndFlush(message);
     }
 
     public void disconnect() {
         isIntentionalDisconnect = true;
         if (channel != null) channel.close();
         if (group != null) group.shutdownGracefully();
-        System.out.println("已断开连接。");
     }
 
     public void setMessageCallback(Consumer<Message> callback) {

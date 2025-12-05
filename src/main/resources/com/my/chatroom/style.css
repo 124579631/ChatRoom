@@ -1,0 +1,269 @@
+/* style.css - 现代 Google/Signal 风格 (微圆润 + 角标) */
+
+/* 1. 全局配置 */
+.root {
+    -fx-background-color: #ffffff;
+    /* 使用无衬线字体 */
+    -fx-font-family: "Segoe UI", "Roboto", "Microsoft YaHei", sans-serif;
+}
+
+/* 2. 左侧用户列表 */
+.user-list-pane {
+    -fx-background-color: #f7f9fc; /* 极淡的灰蓝色，比纯白更有质感 */
+    -fx-border-color: #eff2f5;
+    -fx-border-width: 0 1px 0 0;
+}
+
+/* 列表容器 */
+.user-list-view {
+    -fx-background-color: transparent;
+    -fx-padding: 10px; /* 给列表加点内边距，让选项悬浮 */
+}
+
+/* 列表单元格 (核心美化) */
+.user-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 8px 10px;
+    -fx-background-radius: 10px; /* 列表项微圆角 */
+    -fx-cursor: hand;
+}
+
+/* 悬停状态 */
+.user-list-view .list-cell:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.04); /* 极淡的灰色悬停 */
+}
+
+/* 选中状态 */
+.user-list-view .list-cell:filled:selected {
+    -fx-background-color: #c2e7ff; /* Google Material 3 风格的浅蓝色选中态 */
+}
+
+/* 用户名文字 */
+.user-name-label {
+    -fx-text-fill: #1f1f1f;
+    -fx-font-size: 14px;
+}
+
+/* 红点角标 (Badge) */
+.unread-badge {
+    -fx-background-color: #ff3b30; /* iOS/WeChat 标准红 */
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 2px 6px;
+    -fx-background-radius: 20px; /* 胶囊形状 */
+    -fx-min-width: 18px;
+    -fx-alignment: center;
+}
+
+/* 公共广场按钮 */
+.public-chat-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #0061a8; /* 链接蓝 */
+    -fx-font-weight: bold;
+    -fx-padding: 15;
+    -fx-cursor: hand;
+    -fx-border-color: #eff2f5;
+    -fx-border-width: 1px 0 0 0;
+}
+.public-chat-btn:hover {
+    -fx-background-color: #f0f4f8;
+}
+
+/* 3. 聊天主区域 */
+.chat-area-pane {
+    -fx-background-color: #ffffff;
+}
+
+.chat-header {
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.03), 5, 0, 0, 2); /* 顶部微阴影 */
+    -fx-border-width: 0;
+    -fx-z-index: 10;
+}
+.chat-title-text {
+    -fx-fill: #1f1f1f;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* 聊天记录列表 */
+.chat-list-view {
+    -fx-background-color: white;
+    -fx-padding: 15px;
+}
+.chat-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 4px 0;
+}
+.chat-list-view .list-cell:empty {
+    -fx-background-color: transparent;
+}
+
+/* --- 气泡样式 (Google Message 风格) --- */
+
+/* 我发送的 */
+.bubble-me {
+    -fx-background-color: #0b57d0; /* Google Blue */
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 16px;
+    -fx-background-radius: 16px 16px 2px 16px; /* 右下角微尖，其他圆润 */
+    -fx-effect: dropshadow(three-pass-box, rgba(11, 87, 208, 0.2), 5, 0, 0, 2);
+}
+
+/* 对方发送的 */
+.bubble-other {
+    -fx-background-color: #f2f2f2; /* 浅灰 */
+    -fx-text-fill: #1f1f1f;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 16px;
+    -fx-background-radius: 16px 16px 16px 2px; /* 左下角微尖 */
+}
+
+/* 图片气泡 */
+.bubble-image-me {
+    -fx-background-color: #0b57d0;
+    -fx-padding: 4px;
+    -fx-background-radius: 16px 16px 2px 16px;
+}
+.bubble-image-other {
+    -fx-background-color: #f2f2f2;
+    -fx-padding: 4px;
+    -fx-background-radius: 16px 16px 16px 2px;
+}
+.bubble-burn {
+    -fx-border-color: #ff3b30;
+    -fx-border-width: 2px;
+    -fx-border-style: dashed;
+}
+
+/* 系统消息 */
+.bubble-system {
+    -fx-background-color: #f0f4f8;
+    -fx-text-fill: #5c6bc0;
+    -fx-font-size: 11px;
+    -fx-padding: 4px 12px;
+    -fx-background-radius: 12px;
+    -fx-font-weight: bold;
+}
+
+/* 4. 底部输入区 */
+.input-area-pane {
+    -fx-background-color: #ffffff;
+    -fx-padding: 10px;
+}
+
+/* 输入框：从胶囊改为微圆润矩形 (Not too round) */
+.msg-input {
+    -fx-background-color: #f2f2f2;
+    -fx-text-fill: #1f1f1f;
+    -fx-font-size: 14px;
+    -fx-background-radius: 12px; /* 12px 是现代卡片标准 */
+    -fx-padding: 10px 15px;
+    -fx-border-width: 0;
+}
+.msg-input:focused {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #0b57d0;
+    -fx-border-width: 2px; /* 聚焦时边框加粗 */
+    -fx-border-radius: 12px;
+    -fx-background-insets: 0;
+}
+
+/* 按钮 */
+.icon-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #444746;
+    -fx-font-size: 20px;
+    -fx-cursor: hand;
+    -fx-background-radius: 50%; /* 圆形点击区 */
+}
+.icon-btn:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+.burn-btn {
+    -fx-text-fill: #ff3b30;
+}
+.burn-btn:hover {
+    -fx-background-color: #ffe5e5;
+}
+
+/* 发送按钮 */
+.send-btn {
+    -fx-background-color: #0b57d0;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 20px; /* 发送按钮保持全圆角，强调行动 */
+    -fx-cursor: hand;
+}
+.send-btn:hover {
+    -fx-background-color: #0842a0;
+    -fx-effect: dropshadow(three-pass-box, rgba(11, 87, 208, 0.3), 5, 0, 0, 2);
+}
+
+/* 滚动条 */
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #dadce0;
+    -fx-background-radius: 4px;
+}
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #bdc1c6;
+}
+
+/* --- 多选模式样式 --- */
+
+/* 多选工具栏背景 */
+.selection-header {
+    -fx-background-color: #f0f4f8; /* 浅蓝灰色背景，区分正常状态 */
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.selection-count-text {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f1f1f;
+}
+
+/* 纯文字按钮 (取消) */
+.text-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #0b57d0;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+/* 操作按钮 */
+.action-btn {
+    -fx-background-color: white;
+    -fx-text-fill: #1f1f1f;
+    -fx-border-color: #dadce0;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.action-btn-danger {
+    -fx-background-color: white;
+    -fx-text-fill: #ff3b30;
+    -fx-border-color: #ff3b30;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+
+/* 选中状态的气泡背景 */
+.bubble-selected {
+    -fx-background-color: #c2e7ff !important; /* 强制变为浅蓝色 */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 0, 0, 0, 0) !important; /* 去掉阴影 */
+    -fx-border-color: #0b57d0;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+}

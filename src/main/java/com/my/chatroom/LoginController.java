@@ -125,7 +125,10 @@ public class LoginController {
         if (response.isSuccess()) {
             statusText.setText("登录成功！正在加载主界面...");
 
-            // 【核心】切换到主聊天窗口
+            // 初始化安全存储，恢复历史密钥
+            // 传入用户输入的密码，用于解密本地数据库
+            nettyClient.initSecureStorage(passwordField.getText());
+            // 切换到主聊天窗口
             try {
                 // 1. 检查 FXML 资源路径是否有效
                 URL chatFxmlLocation = getClass().getResource("/com/my/chatroom/Chat.fxml");

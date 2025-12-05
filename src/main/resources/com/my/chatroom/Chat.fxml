@@ -8,34 +8,45 @@
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.my.chatroom.ChatController"
-            prefHeight="600.0" prefWidth="800.0"
+            prefHeight="650.0" prefWidth="900.0"
             styleClass="root">
 
     <left>
-        <VBox style="-fx-background-color: #2a2a2a;" prefWidth="200" spacing="10">
-            <padding>
-                <Insets top="10" right="5" bottom="10" left="5"/>
-            </padding>
-            <Text text="在线用户" styleClass="header-title" fill="#00ff00" style="-fx-font-size: 20px;"/>
+        <VBox styleClass="user-list-pane" prefWidth="250" spacing="0">
+            <HBox alignment="CENTER_LEFT" prefHeight="60" styleClass="sidebar-header">
+                <padding><Insets left="20"/></padding>
+                <Text text="消息" styleClass="header-text"/>
+            </HBox>
 
-            <ListView fx:id="userListView" styleClass="user-list-view" VBox.vgrow="ALWAYS"/>
+            <ListView fx:id="userListView" VBox.vgrow="ALWAYS" styleClass="user-list-view"/>
 
-            <Button text="📢 进入公共群聊"
-                    maxWidth="Infinity"
-                    style="-fx-background-color: #ff9900; -fx-text-fill: black; -fx-font-weight: bold;"
+            <Button text="📢  进入公共广场" maxWidth="Infinity"
+                    styleClass="public-chat-btn"
                     onAction="#handleJoinPublicChat"/>
         </VBox>
     </left>
 
     <center>
-        <VBox>
-            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #2a2a2a; -fx-padding: 10;">
-                <Text fx:id="chatTargetLabel" text="[未选择聊天]" styleClass="header-title" fill="#ffffff" style="-fx-font-size: 20px;"/>
+        <VBox styleClass="chat-area-pane">
+            <HBox fx:id="normalChatHeader" alignment="CENTER_LEFT" prefHeight="60" styleClass="chat-header">
+                <padding><Insets left="20"/></padding>
+                <Text fx:id="chatTargetLabel" text="未选择会话" styleClass="chat-title-text"/>
+                <Region HBox.hgrow="ALWAYS"/>
+            </HBox>
 
-                <Button fx:id="connectButton" text="🔐 建立加密通道"
-                        onAction="#handleConnectAction"
-                        style="-fx-background-color: #00ff00; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;"
-                        visible="false"/>
+            <HBox fx:id="selectionToolbar" alignment="CENTER_LEFT" prefHeight="60"
+                  styleClass="selection-header" visible="false" managed="false">
+                <padding><Insets left="20" right="20"/></padding>
+                <Button text="取消" onAction="#exitSelectionMode" styleClass="text-btn"/>
+                <Region prefWidth="20"/>
+                <Label fx:id="selectionCountLabel" text="已选择 0 条" styleClass="selection-count-text"/>
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <HBox spacing="15">
+                    <Button text="转发" onAction="#handleBatchForward" styleClass="action-btn"/>
+                    <Button text="复制" onAction="#handleBatchCopy" styleClass="action-btn"/>
+                    <Button text="删除" onAction="#handleBatchDelete" styleClass="action-btn-danger"/>
+                </HBox>
             </HBox>
 
             <ListView fx:id="chatListView" VBox.vgrow="ALWAYS" styleClass="chat-list-view"/>
@@ -43,36 +54,34 @@
     </center>
 
     <bottom>
-        <VBox styleClass="bottom-bar">
+        <VBox styleClass="input-area-pane">
             <ScrollPane fx:id="pendingFileScroll" vbarPolicy="NEVER" hbarPolicy="AS_NEEDED"
-                        style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;"
+                        styleClass="pending-scroll" fitToHeight="true"
                         maxHeight="0" visible="false">
-                <HBox fx:id="pendingFileBox" spacing="10" style="-fx-padding: 5 10 5 10;">
-                </HBox>
+                <HBox fx:id="pendingFileBox" spacing="10" style="-fx-padding: 10;"/>
             </ScrollPane>
 
-            <HBox spacing="10" alignment="CENTER_LEFT">
+            <HBox spacing="15" alignment="CENTER_LEFT" prefHeight="70">
                 <padding>
-                    <Insets top="10" right="10" bottom="10" left="10"/>
+                    <Insets left="20" right="20"/>
                 </padding>
 
-                <Button text="图片" onAction="#handleSelectFileAction"
-                        style="-fx-background-color: #444444; -fx-text-fill: white;"
-                        prefWidth="50"/>
+                <Button text="📷" onAction="#handleSelectFileAction" styleClass="icon-btn"/>
 
                 <TextField fx:id="messageInputField" HBox.hgrow="ALWAYS"
-                           promptText="在此输入加密消息..."
+                           promptText="发送加密消息..."
                            onAction="#handleSendMessageAction"
-                           styleClass="message-input-field"/>
+                           styleClass="msg-input"/>
 
-                <Button fx:id="sendButton" text="发 送"
-                        onAction="#handleSendMessageAction"
-                        styleClass="button" prefWidth="80"/>
-
-                <Button fx:id="burnButton" text="🔥 阅后即焚"
+                <Button fx:id="burnButton" text="⌛"
                         onAction="#handleBurnMessageAction"
-                        style="-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-font-weight: bold;"
-                        prefWidth="100"/>
+                        styleClass="icon-btn, burn-btn">
+                    <tooltip><Tooltip text="阅后即焚模式"/></tooltip>
+                </Button>
+
+                <Button fx:id="sendButton" text="发送"
+                        onAction="#handleSendMessageAction"
+                        styleClass="send-btn" prefWidth="80"/>
             </HBox>
         </VBox>
     </bottom>
