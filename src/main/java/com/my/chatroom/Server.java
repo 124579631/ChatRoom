@@ -10,6 +10,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
 
 public class Server {
 
@@ -20,12 +23,19 @@ public class Server {
     }
 
     public void run() throws Exception {
+        // 1. 生成自签名证书
+        SelfSignedCertificate ssc = new SelfSignedCertificate();
+
+        // 2. 配置 SSL 上下文 (强制使用 TLSv1.2 以避免协议不匹配)
+        SslContext sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey())
+                .protocols("TLSv1.2")
+                .build();
+
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
         try {
             ServerBootstrap b = new ServerBootstrap();
-
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
@@ -33,25 +43,22 @@ public class Server {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline pipeline = ch.pipeline();
 
-                            // 1. 定长解码器：解决粘包/拆包
-                            pipeline.addLast(new LengthFieldBasedFrameDecoder(
-                                    1024 * 1024, 0, 4, 0, 4));
+                            // A. SSL 加密层 (最先处理)
+                            pipeline.addLast(sslCtx.newHandler(ch.alloc()));
 
-                            // 2. 定长编码器：添加4字节的长度头
+                            // B. 编解码 (支持大文件，最大 10MB)
+                            pipeline.addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 0, 4, 0, 4));
                             pipeline.addLast(new LengthFieldPrepender(4));
-
-                            // 3. JSON 编解码器：对象 <-> 字节流
                             pipeline.addLast(new MessageToJsonEncoder());
                             pipeline.addLast(new JsonToMessageDecoder());
 
-                            // 4. 业务逻辑处理器
+                            // C. 业务逻辑
                             pipeline.addLast(new ChatServerHandler());
                         }
                     });
 
             ChannelFuture f = b.bind(port).sync();
-            System.out.println("服务端启动成功，正在监听端口: " + port);
-
+            System.out.println("服务端启动成功 (SSL/TLSv1.2 开启)，监听端口: " + port);
             f.channel().closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();
@@ -60,13 +67,8 @@ public class Server {
     }
 
     public static void main(String[] args) throws Exception {
-        // 引用 DatabaseManager 类，触发其静态初始化块，创建数据库和表
-        try {
-            Class.forName(DatabaseManager.class.getName());
-        } catch (ClassNotFoundException e) {
-            // 不应发生
-        }
-
+        // 确保数据库加载
+        try { Class.forName(DatabaseManager.class.getName()); } catch (ClassNotFoundException e) {}
         new Server(8888).run();
     }
 }

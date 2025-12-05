@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?> <?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
@@ -18,8 +19,17 @@
     <Text fx:id="statusText" styleClass="status-text" />
 
     <VBox spacing="10" alignment="CENTER_LEFT" prefHeight="150">
-        <Label text="服务器 (例如: 127.0.0.1:8888)" styleClass="label-normal" />
-        <TextField fx:id="serverField" promptText="host:port" text="127.0.0.1:8888" />
+        <Label text="服务器 (Host:Port)" styleClass="label-normal" />
+
+        <HBox spacing="5">
+            <TextField fx:id="serverField" promptText="host:port" text="127.0.0.1:8888" HBox.hgrow="ALWAYS"/>
+            <Button text="本机" onAction="#handleAutoIpAction"
+                    style="-fx-background-color: #444444; -fx-text-fill: #00ff00; -fx-font-size: 12px;">
+                <tooltip>
+                    <Tooltip text="获取本机局域网IP"/>
+                </tooltip>
+            </Button>
+        </HBox>
 
         <Label text="用户名" styleClass="label-normal" />
         <TextField fx:id="userIdField" promptText="输入你的ID" />

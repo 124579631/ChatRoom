@@ -15,7 +15,8 @@ public class Message implements Serializable {
         KEY_EXCHANGE_REQUEST,
         KEY_EXCHANGE_RESPONSE,
         AES_KEY_EXCHANGE,
-        IMAGE_MESSAGE
+        IMAGE_MESSAGE,
+        HEARTBEAT
     }
 
     private MessageType type;

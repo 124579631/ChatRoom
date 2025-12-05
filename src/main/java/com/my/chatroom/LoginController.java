@@ -108,6 +108,17 @@ public class LoginController {
     }
 
     /**
+     * 【新增】自动获取本机 IP 并填入
+     */
+    @FXML
+    private void handleAutoIpAction() {
+        String localIp = NetworkUtils.getLocalHostLANAddress();
+        // 保留端口号 8888
+        serverField.setText(localIp + ":8888");
+        statusText.setText("已填入本机 IP: " + localIp);
+    }
+
+    /**
      * 【新增】处理登录响应 (在 UI 线程)
      */
     private void handleLoginResponse(LoginResponse response) {

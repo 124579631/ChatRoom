@@ -44,6 +44,11 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<Message> {
         else if (actualMsg.getType() == Message.MessageType.AES_KEY_EXCHANGE) {
             handleAESKeyExchange(ctx, actualMsg);
         }
+        else if (actualMsg.getType() == Message.MessageType.HEARTBEAT) {
+            // 收到心跳，Netty 会自动维持连接活跃
+            // System.out.println("收到心跳: " + ctx.channel().remoteAddress());
+            return;
+        }
         // 4. 普通消息 / 阅后即焚 / 图片 (可能是私聊，也可能是群聊)
         else {
             String userId = getUserIdByChannel(ctx.channel());
